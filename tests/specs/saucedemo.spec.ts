@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import credentials from './resources/credential.json';
-import { LoginPage } from './pages/LoginPage';
+import credentials from '../resources/credential.json';
+import { LoginPage } from '../pages/LoginPage';
 
 test('purchase items and validate checkout', async ({ page }) => {
   const loginPage = new LoginPage(page);
