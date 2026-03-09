@@ -1,79 +1,55 @@
 import { test, expect } from '@playwright/test';
 import credentials from './resources/credential.json';
+import { LoginPage } from './pages/LoginPage';
 
 test('purchase items and validate checkout', async ({ page }) => {
-  // Open sauce demo page
-  await page.goto('https://www.saucedemo.com/');
+  const loginPage = new LoginPage(page);
+  await loginPage.open();
 
-  // Login
-  await page.locator('#user-name').fill(credentials.username);
-  await page.locator('#password').fill(credentials.password);
-  await page.locator('#login-button').click();
+  const inventoryPage = await loginPage.login(credentials.username, credentials.password);
 
-  // inventory.html is loaded after login
+  await inventoryPage.addItemToCart('Sauce Labs Backpack');
+  await inventoryPage.addItemToCart('Sauce Labs Fleece Jacket');
 
-  // Add Sauce Labs Backpack and Sauce Labs Fleece Jacket to cart
-  await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-  await page.locator('[data-test="add-to-cart-sauce-labs-fleece-jacket"]').click();
-
-  // Validate cart badge shows 2 in top right corner
-  const badge = page.locator('[data-test="shopping-cart-badge"]');
-  await badge.waitFor({ state: 'visible' }); // this wait is needed
+  const badge = await inventoryPage.getCartBadge();
   await expect(badge).toContainText('2');
 
-  // Go to cart and checkout
-  await page.locator('[data-test="shopping-cart-link"]').click();
-  await page.locator('[data-test="checkout"]').click();
+  const cartPage = await inventoryPage.goToCart();
+  const checkoutStepOne = await cartPage.proceedToCheckout();
 
-  // checkout-step-one.html is loaded
+  await checkoutStepOne.fillCheckoutInfo('Test', 'User', '12345');
+  const checkoutStepTwo = await checkoutStepOne.continue();
 
-  // Fill checkout info
-  await page.locator('[data-test="firstName"]').fill('Test');
-  await page.locator('[data-test="lastName"]').fill('User');
-  await page.locator('[data-test="postalCode"]').fill('12345');
-  await page.locator('[data-test="continue"]').click();
+  const checkoutComplete = await checkoutStepTwo.finishCheckout();
 
-  // checkout-step-two.html is loaded
-
-  // Finish checkout
-  await page.locator('[data-test="finish"]').click();
-
-  // checkout-complete.html is loaded
-
-  // Validate thank you message
-  await expect(page.locator('.complete-header')).toHaveText('Thank you for your order!');
+  await expect(checkoutComplete.getCompleteHeader()).toHaveText('Thank you for your order!');
 });
 
 test('validate error messages, login and footer text', async ({ page }) => {
-  await page.goto('https://www.saucedemo.com');
+  const loginPage = new LoginPage(page);
+  await loginPage.open();
 
   // Click login with both fields empty - validate username error
-  await page.locator('#login-button').click();
-  await expect(page.locator('[data-test="error"]')).toBeVisible();
-  await expect(page.locator('[data-test="error"]')).toHaveText('Epic sadface: Username is required');
+  await loginPage.clickLogin();
+  await expect(loginPage.getErrorMessage()).toBeVisible();
+  await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Username is required');
 
   // Fill only username, leave password empty - validate password error
-  await page.locator('#user-name').fill('standard_user');
-  await page.locator('#login-button').click();
-  await expect(page.locator('[data-test="error"]')).toHaveText('Epic sadface: Password is required');
+  await loginPage.fillUsername('standard_user');
+  await loginPage.clickLogin();
+  await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Password is required');
 
   // Fill only password, leave username empty - validate username error
-  await page.locator('#user-name').clear();
-  await page.locator('#password').fill('secret_sauce');
-  await page.locator('#login-button').click();
-  await expect(page.locator('[data-test="error"]')).toHaveText('Epic sadface: Username is required');
+  await loginPage.clearUsername();
+  await loginPage.fillPassword('secret_sauce');
+  await loginPage.clickLogin();
+  await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Username is required');
 
   // Login with standard_user
-  await page.locator('#user-name').fill('standard_user');
-  await page.locator('#login-button').click();
+  const inventoryPage = await loginPage.login('standard_user', 'secret_sauce');
 
-  // inventory.html is loaded after login - validate URL contains inventory
+  await inventoryPage.scrollToBottom();
 
-  // Scroll down to the bottom of the page
-  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-
-  // Validate footer contains 2026 and Terms of Service
-  const footer = page.locator('.footer_copy');
-  await expect(footer).toContainText('2026');
-  await expect(footer).toContainText('Terms of Service');
+  await expect(inventoryPage.getFooter()).toContainText('2026');
+  await expect(inventoryPage.getFooter()).toContainText('Terms of Service');
 });
