@@ -11,47 +11,67 @@ test.describe('SauceDemo', () => {
   });
 
   test('purchase items and validate checkout', async () => {
-    const inventoryPage = await loginPage.login(credentials.username, credentials.password);
+    const inventoryPage = await test.step('Login with valid credentials', async () => {
+      return await loginPage.login(credentials.username, credentials.password);
+    });
 
-    await inventoryPage.addItemToCart('Sauce Labs Backpack');
-    await inventoryPage.addItemToCart('Sauce Labs Fleece Jacket');
+    await test.step('Add Backpack and Fleece Jacket to cart', async () => {
+      await inventoryPage.addItemToCart('Sauce Labs Backpack');
+      await inventoryPage.addItemToCart('Sauce Labs Fleece Jacket');
+    });
 
-    const badge = await inventoryPage.getCartBadge();
-    await expect(badge).toContainText('2');
+    await test.step('Verify cart badge shows 2 items', async () => {
+      const badge = await inventoryPage.getCartBadge();
+      await expect(badge).toContainText('2');
+    });
 
-    const cartPage = await inventoryPage.goToCart();
-    const checkoutStepOne = await cartPage.proceedToCheckout();
+    const checkoutStepOne = await test.step('Navigate to checkout', async () => {
+      const cartPage = await inventoryPage.goToCart();
+      return await cartPage.proceedToCheckout();
+    });
 
-    await checkoutStepOne.fillCheckoutInfo('Test', 'User', '12345');
-    const checkoutStepTwo = await checkoutStepOne.continue();
+    const checkoutStepTwo = await test.step('Fill in checkout information', async () => {
+      await checkoutStepOne.fillCheckoutInfo('Test', 'User', '12345');
+      return await checkoutStepOne.continue();
+    });
 
-    const checkoutComplete = await checkoutStepTwo.finishCheckout();
+    const checkoutComplete = await test.step('Finish checkout', async () => {
+      return await checkoutStepTwo.finishCheckout();
+    });
 
-    await expect(checkoutComplete.getCompleteHeader()).toHaveText('Thank you for your order!');
+    await test.step('Verify order confirmation message', async () => {
+      await expect(checkoutComplete.getCompleteHeader()).toHaveText('Thank you for your order!');
+    });
   });
 
   test('validate error messages, login and footer text', async () => {
-    // Click login with both fields empty - validate username error
-    await loginPage.clickLogin();
-    await expect(loginPage.getErrorMessage()).toBeVisible();
-    await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Username is required');
+    await test.step('Submit empty form and verify username is required', async () => {
+      await loginPage.clickLogin();
+      await expect(loginPage.getErrorMessage()).toBeVisible();
+      await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Username is required');
+    });
 
-    // Fill only username, leave password empty - validate password error
-    await loginPage.fillUsername('standard_user');
-    await loginPage.clickLogin();
-    await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Password is required');
+    await test.step('Submit with only username and verify password is required', async () => {
+      await loginPage.fillUsername('standard_user');
+      await loginPage.clickLogin();
+      await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Password is required');
+    });
 
-    // Fill only password, leave username empty - validate username error
-    await loginPage.clearUsername();
-    await loginPage.fillPassword('secret_sauce');
-    await loginPage.clickLogin();
-    await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Username is required');
+    await test.step('Submit with only password and verify username is required', async () => {
+      await loginPage.clearUsername();
+      await loginPage.fillPassword('secret_sauce');
+      await loginPage.clickLogin();
+      await expect(loginPage.getErrorMessage()).toHaveText('Epic sadface: Username is required');
+    });
 
-    // Login with standard_user
-    const inventoryPage = await loginPage.login('standard_user', 'secret_sauce');
+    const inventoryPage = await test.step('Login with valid credentials', async () => {
+      return await loginPage.login('standard_user', 'secret_sauce');
+    });
 
-    await inventoryPage.scrollToBottom();
-    await expect(inventoryPage.getFooter()).toContainText('2026');
-    await expect(inventoryPage.getFooter()).toContainText('Terms of Service');
+    await test.step('Verify footer contains copyright year and Terms of Service', async () => {
+      await inventoryPage.scrollToBottom();
+      await expect(inventoryPage.getFooter()).toContainText('2026');
+      await expect(inventoryPage.getFooter()).toContainText('Terms of Service');
+    });
   });
 });
