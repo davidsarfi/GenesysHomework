@@ -49,7 +49,7 @@ test('validate error messages, login and footer text', async ({ page }) => {
   const inventoryPage = await loginPage.login('standard_user', 'secret_sauce');
 
   await inventoryPage.scrollToBottom();
-
+  //I changed this year check to 2026, because in the documentation there was 2023 but it was outdated
   await expect(inventoryPage.getFooter()).toContainText('2026');
   await expect(inventoryPage.getFooter()).toContainText('Terms of Service');
 });

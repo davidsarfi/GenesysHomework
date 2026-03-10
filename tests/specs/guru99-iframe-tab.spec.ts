@@ -7,6 +7,7 @@ test('iFrame and tab handling', async ({ page, context }) => {
 
   // Click iframe image - opens new tab with Selenium Live Project page
   const liveProjectPage = await homePage.clickIframeImage(context);
+  //Here I changed the text to check, because I believe it has changed since the homework was created
   await expect(liveProjectPage.getPage()).toHaveTitle(/Selenium Live Project for Practice/);
 
   // Close new tab and switch back to main window
@@ -19,6 +20,6 @@ test('iFrame and tab handling', async ({ page, context }) => {
   // Click on the page for the submit button to load
   await tutorialPage.clickPageBody();
 
-  // Verify the red Submit button is visible
+  // Here I changed the check for the submit button instead of "Join now" because I could only find a red button with submint text
   await expect(tutorialPage.getSubmitButton()).toBeVisible();
 });

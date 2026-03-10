@@ -9,6 +9,7 @@ export class SeleniumTutorialPage {
     this.submitButton = page.locator('form span b').filter({ hasText: 'Submit' });
   }
 
+  //This step was only needed for the submit button to be loaded.
   async clickPageBody() {
     await this.pageBody.click();
   }
