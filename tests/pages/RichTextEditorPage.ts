@@ -7,8 +7,8 @@ export class RichTextEditorPage {
 
   constructor(private readonly page: Page) {
     this.editorArea = page.locator('.ck-editor__editable');
-    this.boldButton = page.locator('button[data-cke-tooltip-text~="Bold"]');
-    this.underlineButton = page.locator('button[data-cke-tooltip-text~="Underline"]');
+    this.boldButton = page.getByRole('button', { name: 'Bold' });
+    this.underlineButton = page.getByRole('button', { name: 'Underline' });
   }
 
   async open() {
