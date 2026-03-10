@@ -9,6 +9,7 @@ This project is set up for a homework assignment with the following precondition
 
 ```bash
 npm install
+npx playwright install
 npm run test       # run Playwright tests
 npm run test:debug # run in debug mode
 ```
