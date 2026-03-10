@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { Guru99HomePage } from '../pages/Guru99HomePage';
+import { Guru99HomePage } from '../pages/guru99/Guru99HomePage';
 
 test('iFrame and tab handling', async ({ page, context }) => {
   const homePage = new Guru99HomePage(page);

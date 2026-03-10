@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { RichTextEditorPage } from '../pages/RichTextEditorPage';
+import { RichTextEditorPage } from '../pages/onlinehtmleditor/RichTextEditorPage';
 
 test('rich text editor - type formatted text', async ({ page }) => {
   const editorPage = new RichTextEditorPage(page);
