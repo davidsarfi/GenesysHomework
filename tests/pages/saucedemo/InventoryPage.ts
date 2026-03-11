@@ -9,7 +9,7 @@ export class InventoryPage {
   constructor(private readonly page: Page) {
     this.cartBadge = page.locator('[data-test="shopping-cart-badge"]');
     this.cartLink = page.locator('[data-test="shopping-cart-link"]');
-    this.footer = page.locator('.footer_copy');
+    this.footer = page.getByRole('contentinfo');
   }
 
   async addItemToCart(itemName: string) {
