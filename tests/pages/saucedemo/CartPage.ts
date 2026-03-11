@@ -5,7 +5,7 @@ export class CartPage {
   private readonly checkoutButton: Locator;
 
   constructor(private readonly page: Page) {
-    this.checkoutButton = page.locator('[data-test="checkout"]');
+    this.checkoutButton = page.getByRole('button', { name: 'Checkout' });
   }
 
   async proceedToCheckout(): Promise<CheckoutStepOnePage> {

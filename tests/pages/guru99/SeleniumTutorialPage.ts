@@ -6,7 +6,7 @@ export class SeleniumTutorialPage {
 
   constructor(private readonly page: Page) {
     this.pageBody = page.locator('.desktop-only1');
-    this.submitButton = page.locator('form span b').filter({ hasText: 'Submit' });
+    this.submitButton = page.getByRole('button', { name: 'Submit' });
   }
 
   //This step was only needed for the submit button to be loaded.

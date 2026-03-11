@@ -8,10 +8,10 @@ export class CheckoutStepOnePage {
   private readonly continueButton: Locator;
 
   constructor(private readonly page: Page) {
-    this.firstNameInput = page.locator('[data-test="firstName"]');
-    this.lastNameInput = page.locator('[data-test="lastName"]');
-    this.postalCodeInput = page.locator('[data-test="postalCode"]');
-    this.continueButton = page.locator('[data-test="continue"]');
+    this.firstNameInput = page.getByRole('textbox', { name: 'First Name' });
+    this.lastNameInput = page.getByRole('textbox', { name: 'Last Name' });
+    this.postalCodeInput = page.getByRole('textbox', { name: 'Zip/Postal Code' });
+    this.continueButton = page.getByRole('button', { name: 'Continue' });
   }
 
   async fillCheckoutInfo(firstName: string, lastName: string, postalCode: string) {

@@ -5,7 +5,7 @@ export class CheckoutStepTwoPage {
   private readonly finishButton: Locator;
 
   constructor(private readonly page: Page) {
-    this.finishButton = page.locator('[data-test="finish"]');
+    this.finishButton = page.getByRole('button', { name: 'Finish' });
   }
 
   async finishCheckout(): Promise<CheckoutCompletePage> {
