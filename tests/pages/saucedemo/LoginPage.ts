@@ -6,12 +6,14 @@ export class LoginPage {
   private readonly passwordInput: Locator;
   private readonly loginButton: Locator;
   private readonly errorMessage: Locator;
+  private readonly errorCloseButton: Locator;
 
   constructor(private readonly page: Page) {
     this.usernameInput = page.getByRole('textbox', { name: 'Username' });
     this.passwordInput = page.getByRole('textbox', { name: 'Password' });
     this.loginButton = page.getByRole('button', { name: 'Login' });
     this.errorMessage = page.locator('[data-test="error"]');
+    this.errorCloseButton = page.locator('.error-button');
   }
 
   async open() {
@@ -26,23 +28,21 @@ export class LoginPage {
     return new InventoryPage(this.page);
   }
 
+  async loginExpectingError(username: string, password: string) {
+    await this.usernameInput.fill(username);
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
+  }
+
   async clickLogin() {
     await this.loginButton.click();
   }
 
-  async fillUsername(username: string) {
-    await this.usernameInput.fill(username);
-  }
-
-  async clearUsername() {
-    await this.usernameInput.clear();
-  }
-
-  async fillPassword(password: string) {
-    await this.passwordInput.fill(password);
-  }
-
   getErrorMessage() {
     return this.errorMessage;
+  }
+
+  async dismissError() {
+    await this.errorCloseButton.click();
   }
 }
