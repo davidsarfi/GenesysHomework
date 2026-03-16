@@ -1,38 +1,51 @@
 import { type Locator, type Page } from '@playwright/test';
+import { AuthenticatedPage } from './AuthenticatedPage';
 import { CartPage } from './CartPage';
+import { InventoryItemPage } from './InventoryItemPage';
 
-export class InventoryPage {
-  private readonly cartBadge: Locator;
-  private readonly cartLink: Locator;
-  private readonly footer: Locator;
+export class InventoryPage extends AuthenticatedPage {
+  private readonly sortDropdown: Locator;
+  private readonly inventoryItems: Locator;
 
-  constructor(private readonly page: Page) {
-    this.cartBadge = page.locator('[data-test="shopping-cart-badge"]');
-    this.cartLink = page.locator('[data-test="shopping-cart-link"]');
-    this.footer = page.getByRole('contentinfo');
+  constructor(page: Page) {
+    super(page);
+    this.sortDropdown = page.locator('[data-test="product-sort-container"]');
+    this.inventoryItems = page.locator('[data-test="inventory-item"]');
   }
 
   async addItemToCart(itemName: string) {
-    const dataTestValue = `add-to-cart-${itemName.toLowerCase().replace(/ /g, '-')}`;
-    await this.page.locator(`[data-test="${dataTestValue}"]`).click();
+    await this.page.locator(`[data-test="add-to-cart-${this.toKebabCase(itemName)}"]`).click();
   }
 
-  async getCartBadge() {
-    await this.cartBadge.waitFor({ state: 'visible' });
-    return this.cartBadge;
+  async removeItemFromCart(itemName: string) {
+    await this.page.locator(`[data-test="remove-${this.toKebabCase(itemName)}"]`).click();
   }
 
   async goToCart(): Promise<CartPage> {
-    await this.cartLink.click();
+    await this.getCartLink().click();
     await this.page.waitForURL('**/cart.html');
     return new CartPage(this.page);
   }
 
-  async scrollToBottom() {
-    await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  async sortBy(option: 'az' | 'za' | 'lohi' | 'hilo') {
+    await this.sortDropdown.selectOption(option);
   }
 
-  getFooter() {
-    return this.footer;
+  async getProductNames(): Promise<string[]> {
+    return await this.page.locator('[data-test="inventory-item-name"]').allTextContents();
+  }
+
+  async getProductPrices(): Promise<number[]> {
+    const priceTexts = await this.page.locator('[data-test="inventory-item-price"]').allTextContents();
+    return priceTexts.map(p => parseFloat(p.replace('$', '')));
+  }
+
+  getProductCount() {
+    return this.inventoryItems.count();
+  }
+
+  async clickProduct(productName: string): Promise<InventoryItemPage> {
+    await this.page.locator('[data-test="inventory-item-name"]').filter({ hasText: productName }).click();
+    return new InventoryItemPage(this.page);
   }
 }
