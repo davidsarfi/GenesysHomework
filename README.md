@@ -1,6 +1,6 @@
 # Playwright TypeScript Starter
 
-This project is set up for a homework assignment with the following preconditions:
+This project is set up for a demo assignment with the following preconditions:
 - Node.js 18 or newer
 - Playwright 1.39.0
 - TypeScript
